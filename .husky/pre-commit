@@ -1,1 +1,2 @@
-npm run pre-commit
+#!/usr/bin/env sh
+npm run lint-staged
