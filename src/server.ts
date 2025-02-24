@@ -1,5 +1,5 @@
 import app from './app';
-import sequelize from './config/database'; // Changed from database.config
+import sequelize, { initDatabase } from './config/database';
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -20,12 +20,11 @@ const logger = {
 
 async function startServer(): Promise<void> {
     try {
-        await sequelize.authenticate();
-        await sequelize.sync();
-        logger.info('Database connection established successfully.');
+        // Initialize database once
+        await initDatabase();
 
         const httpServer = server.listen(PORT, () => {
-            logger.info(`Server is running on port ${PORT}`);
+            logger.info(`Server running on port ${PORT} in ${process.env.NODE_ENV} mode`);
         });
 
         process.on('SIGTERM', () => {
@@ -46,7 +45,12 @@ async function startServer(): Promise<void> {
             });
         });
     } catch (error) {
-        logger.error(`Unable to start server: ${error}`);
+        if (error instanceof Error) {
+            logger.error(`Server startup failed: ${error.message}`);
+            if (error.stack) {
+                logger.error(`Stack trace: ${error.stack}`);
+            }
+        }
         process.exit(1);
     }
 }

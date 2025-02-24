@@ -1,11 +1,13 @@
-import express from 'express';
+import { Router } from 'express';
 import { registerUser, loginUser } from '../controllers/userController';
 import { registerValidator, loginValidator } from '../validators/userValidators';
 import { validate } from '../middlewares/validate';
 
-const router = express.Router();
+const router = Router();
 
-router.post('/register', validate(registerValidator), registerUser);
-router.post('/login', validate(loginValidator), loginUser);
+type AsyncHandler = Parameters<typeof router.post>[1];
+
+router.post('/register', validate(registerValidator), registerUser as AsyncHandler);
+router.post('/login', validate(loginValidator), loginUser as AsyncHandler);
 
 export default router;
